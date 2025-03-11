@@ -3,6 +3,7 @@ import { Link, Route, Routes } from 'react-router-dom';
 import { AppHeader, Page } from '@dynatrace/strato-components-preview/layouts';
 import { HostList } from './pages/HostList';
 import { StatusHistory } from './pages/StatusHistory';
+import { Test } from './pages/Test';
 
 export const App = () => {
   return (
@@ -15,11 +16,11 @@ export const App = () => {
               Status History
             </AppHeader.NavItem>
           </AppHeader.NavItems>
-        </AppHeader>
+        </AppHeader>  
       </Page.Header>
       <Page.Main>
         <Routes>
-          <Route path="/" element={<HostList />} />
+          <Route path="/" element={<Test />} />
           <Route path="/status-history" element={<StatusHistory />} />
         </Routes>
       </Page.Main>
