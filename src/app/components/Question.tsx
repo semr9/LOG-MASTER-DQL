@@ -3,32 +3,34 @@ import { DQLEditor } from '@dynatrace/strato-components-preview/editors';
 import { Flex } from '@dynatrace/strato-components/layouts';
 import { Text } from '@dynatrace/strato-components/typography';
 import { Button } from '@dynatrace/strato-components/buttons';
-import { useAppFunction } from '@dynatrace-sdk/react-hooks';
+import { verifyDql } from '../actions/questionActions';
 
 interface QuestionProps {
   questionNumber: number;
   questionText: string;
   initialDqlValue?: string;
+  onValueChange: (value: string) => void;
 }
 
 export const Question: React.FC<QuestionProps> = ({
   questionNumber,
   questionText,
   initialDqlValue = '',
+  onValueChange,
 }) => {
   const [currentValue, setCurrentValue] = useState(initialDqlValue);
+  const [verifyResult, setVerifyResult] = useState<any>(null);
   
-  const verifyResult = useAppFunction<{ isValid: boolean }>({
-    name: 'verify-question-syntax',
-    data: { query: currentValue },
-  });
 
   const handleEditorChange = (value: string) => {
     setCurrentValue(value);
+    onValueChange(value);
   };
 
   const handleRunClick = () => {
-    verifyResult.refetch();
+    verifyDql(currentValue).then((result) => {
+      setVerifyResult(result);
+    });
   };
 
   return (
@@ -40,19 +42,21 @@ export const Question: React.FC<QuestionProps> = ({
         onChange={handleEditorChange}
       />
       <Flex justifyContent="flex-end" gap={8}>
+
+      {verifyResult && (
+          <Text textStyle="base-emphasized" color={verifyResult.valid ? "success" : "critical"}>
+            {verifyResult.valid ? "Syntax is valid" : "Syntax error"}
+          </Text>
+        )}
+        
         <Button 
           color="primary" 
           variant="emphasized"
           onClick={handleRunClick}
-          loading={verifyResult.isLoading}
         >
           Run
         </Button>
-        {verifyResult.data && (
-          <Text textStyle="base-emphasized" color={verifyResult.data.isValid ? "success" : "critical"}>
-            {verifyResult.data.isValid ? "Syntax is valid" : "Syntax error"}
-          </Text>
-        )}
+        
       </Flex>
     </Flex>
   );
